@@ -5,18 +5,29 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin Dashboard</title>
 <style>
-* { box-sizing:border-box; margin:0; padding:0; }
+/* Reset + Body */
+* { box-sizing: border-box; margin:0; padding:0; }
 body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background:#0f172a; color:#fff; }
+
+/* Header */
 header { background:#020617; padding:15px 20px; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #1e293b; }
 header h1 { font-size:1.5em; }
+
+/* Container */
 .container { padding:20px; max-width:1200px; margin:auto; }
+
+/* Stats cards */
 .stats { display:flex; gap:20px; margin-bottom:30px; flex-wrap:wrap; }
 .card { background:#1e293b; padding:20px; border-radius:12px; flex:1; min-width:200px; text-align:center; box-shadow:0 0 15px rgba(0,0,0,0.4); }
 .card h2 { font-size:2em; color:#22c55e; }
+
+/* Data list */
 .data-list { display:flex; flex-direction:column; gap:15px; max-height:500px; overflow-y:auto; }
 .data-card { background:#1e293b; padding:15px 20px; border-radius:10px; box-shadow:0 0 10px rgba(0,0,0,0.3); }
 .data-card b { color:#38bdf8; }
 .data-card small { color:#94a3b8; display:block; margin-top:5px; }
+
+/* Export button */
 button { margin-top:15px; padding:10px 15px; border:none; border-radius:8px; background:#22c55e; color:#fff; cursor:pointer; }
 </style>
 </head>
@@ -42,8 +53,8 @@ button { margin-top:15px; padding:10px 15px; border:none; border-radius:8px; bac
 
 </div>
 
-<!-- Fake API -->
-<script id="fakeapi">
+<!-- FakeAPI for in-memory transport -->
+<script>
 // Fake API to transport submissions in real-time
 const FakeAPI = (function() {
   const listeners = [];
@@ -55,28 +66,61 @@ const FakeAPI = (function() {
 </script>
 
 <script>
-const submissions = [];
 const list = document.getElementById("list");
 const total = document.getElementById("total");
 const exportBtn = document.getElementById("exportBtn");
 
-function addToDashboard(data) {
-  submissions.push(data);
+let submissions = [];
 
-  total.innerText = submissions.length;
+// Load submissions from localStorage if less than 60 hours old
+function loadFromStorage() {
+  const saved = localStorage.getItem("submissions");
+  if (!saved) return;
+  try {
+    const obj = JSON.parse(saved);
+    const now = Date.now();
+    submissions = obj.filter(item => now - item.timestamp < 60 * 3600 * 1000); // 60 hours
+    submissions.forEach(renderSubmission);
+    updateTotal();
+  } catch(err) {
+    console.error("Failed to load submissions:", err);
+  }
+}
 
+// Save to localStorage
+function saveToStorage() {
+  const now = Date.now();
+  const dataToSave = submissions.map(item => ({ ...item, timestamp: now }));
+  localStorage.setItem("submissions", JSON.stringify(dataToSave));
+}
+
+// Render one submission
+function renderSubmission(data) {
   const div = document.createElement("div");
   div.className = "data-card";
   div.innerHTML = `<b>${data.contact}</b><br>${data.feedback}<br><small>${data.time}</small>`;
   list.prepend(div);
 }
 
-// Subscribe to incoming submissions
+// Update total
+function updateTotal() {
+  total.innerText = submissions.length;
+}
+
+// Add submission
+function addToDashboard(data) {
+  submissions.push({ ...data, timestamp: Date.now() });
+  renderSubmission(data);
+  updateTotal();
+  saveToStorage();
+}
+
+// Subscribe to FakeAPI
 FakeAPI.subscribe(addToDashboard);
 
-// Export submissions as JSON
+// Export JSON
 exportBtn.addEventListener("click", () => {
-  const blob = new Blob([JSON.stringify(submissions, null, 2)], {type:"application/json"});
+  const blob = new Blob([JSON.stringify(submissions.map(({timestamp, ...rest}) => rest), null, 2)], {type:"application/json"});
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
@@ -84,6 +128,9 @@ exportBtn.addEventListener("click", () => {
   a.click();
   URL.revokeObjectURL(url);
 });
+
+// Initialize
+loadFromStorage();
 </script>
 
 </body>
