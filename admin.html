@@ -4,72 +4,20 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin Dashboard</title>
-
 <style>
-/* Reset + Body */
-* { box-sizing: border-box; margin:0; padding:0; }
-body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background: #0f172a;
-  color: #fff;
-}
-
-/* Header */
-header {
-  background: #020617;
-  padding: 15px 20px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: 1px solid #1e293b;
-}
-header h1 { font-size: 1.5em; }
-
-/* Container */
-.container {
-  padding: 20px;
-  max-width: 1200px;
-  margin: auto;
-}
-
-/* Stats cards */
-.stats {
-  display: flex;
-  gap: 20px;
-  margin-bottom: 30px;
-  flex-wrap: wrap;
-}
-.card {
-  background: #1e293b;
-  padding: 20px;
-  border-radius: 12px;
-  flex: 1;
-  min-width: 200px;
-  text-align: center;
-  box-shadow: 0 0 15px rgba(0,0,0,0.4);
-}
-.card h2 { font-size: 2em; color: #22c55e; }
-
-/* Data list */
-.data-list {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-}
-.data-card {
-  background: #1e293b;
-  padding: 15px 20px;
-  border-radius: 10px;
-  box-shadow: 0 0 10px rgba(0,0,0,0.3);
-}
-.data-card b { color: #38bdf8; }
-.data-card small { color: #94a3b8; display:block; margin-top:5px; }
-
-/* Scroll for many entries */
-.data-list {
-  max-height: 500px;
-  overflow-y: auto;
-}
+* { box-sizing:border-box; margin:0; padding:0; }
+body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background:#0f172a; color:#fff; }
+header { background:#020617; padding:15px 20px; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #1e293b; }
+header h1 { font-size:1.5em; }
+.container { padding:20px; max-width:1200px; margin:auto; }
+.stats { display:flex; gap:20px; margin-bottom:30px; flex-wrap:wrap; }
+.card { background:#1e293b; padding:20px; border-radius:12px; flex:1; min-width:200px; text-align:center; box-shadow:0 0 15px rgba(0,0,0,0.4); }
+.card h2 { font-size:2em; color:#22c55e; }
+.data-list { display:flex; flex-direction:column; gap:15px; max-height:500px; overflow-y:auto; }
+.data-card { background:#1e293b; padding:15px 20px; border-radius:10px; box-shadow:0 0 10px rgba(0,0,0,0.3); }
+.data-card b { color:#38bdf8; }
+.data-card small { color:#94a3b8; display:block; margin-top:5px; }
+button { margin-top:15px; padding:10px 15px; border:none; border-radius:8px; background:#22c55e; color:#fff; cursor:pointer; }
 </style>
 </head>
 <body>
@@ -88,46 +36,54 @@ header h1 { font-size: 1.5em; }
     </div>
   </div>
 
-  <div class="data-list" id="list">
-    <!-- Data will populate here -->
-  </div>
+  <div class="data-list" id="list"></div>
+
+  <button id="exportBtn">Export as JSON</button>
 
 </div>
 
+<!-- Fake API -->
+<script id="fakeapi">
+// Fake API to transport submissions in real-time
+const FakeAPI = (function() {
+  const listeners = [];
+  return {
+    send(data) { listeners.forEach(cb => cb(data)); },
+    subscribe(cb) { listeners.push(cb); }
+  };
+})();
+</script>
+
 <script>
-// Load submissions from backend (JSON)
-async function loadData(){
-  try {
-    const res = await fetch("/data");
-    const data = await res.json();
+const submissions = [];
+const list = document.getElementById("list");
+const total = document.getElementById("total");
+const exportBtn = document.getElementById("exportBtn");
 
-    // Update total
-    document.getElementById("total").innerText = data.length;
+function addToDashboard(data) {
+  submissions.push(data);
 
-    // Populate list
-    const list = document.getElementById("list");
-    list.innerHTML = "";
-    data.reverse().forEach(item => {
-      const div = document.createElement("div");
-      div.className = "data-card";
-      div.innerHTML = `
-        <b>${item.contact}</b><br>
-        ${item.feedback}<br>
-        <small>${item.time}</small>
-      `;
-      list.appendChild(div);
-    });
+  total.innerText = submissions.length;
 
-  } catch(err){
-    console.error("Error loading data:", err);
-    const list = document.getElementById("list");
-    list.innerHTML = "<p style='color:red;'>Could not load data.</p>";
-  }
+  const div = document.createElement("div");
+  div.className = "data-card";
+  div.innerHTML = `<b>${data.contact}</b><br>${data.feedback}<br><small>${data.time}</small>`;
+  list.prepend(div);
 }
 
-// Auto-refresh every 3 seconds for realtime feel
-setInterval(loadData, 3000);
-loadData();
+// Subscribe to incoming submissions
+FakeAPI.subscribe(addToDashboard);
+
+// Export submissions as JSON
+exportBtn.addEventListener("click", () => {
+  const blob = new Blob([JSON.stringify(submissions, null, 2)], {type:"application/json"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "submissions.json";
+  a.click();
+  URL.revokeObjectURL(url);
+});
 </script>
 
 </body>
