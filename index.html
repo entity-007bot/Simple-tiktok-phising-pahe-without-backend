@@ -1,65 +1,59 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Tiktok Security Check</title>
-
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TikTok Survey</title>
 <style>
-body {
-  font-family: Arial;
-  background: linear-gradient(135deg, #000, #25F4EE, #FE2C55);
-  display:flex; justify-content:center; align-items:center;
-  height:100vh;
-}
-.container {
-  background:white;
-  padding:20px;
-  border-radius:10px;
-  width:100%;
-  max-width:400px;
-}
-input, textarea, button {
-  width:100%;
-  padding:12px;
-  margin:10px 0;
-  border-radius:8px;
-  border:1px solid #ccc;
-}
-button {
-  background:#FE2C55;
-  color:white;
-  font-weight:bold;
-}
+body { font-family: Arial, sans-serif; background: linear-gradient(135deg, #000, #25F4EE, #FE2C55); display:flex; justify-content:center; align-items:center; height:100vh; margin:0; }
+.container { background:white; border-radius:12px; width:100%; max-width:400px; padding:20px; box-shadow:0 0 20px rgba(0,0,0,0.3); text-align:center; }
+img { width:80px; margin-bottom:15px; }
+h2 { margin:10px 0; font-size:1.5em; }
+input, textarea { width:100%; padding:12px; margin:10px 0; border-radius:8px; border:1px solid #ccc; font-size:1em; box-sizing:border-box; }
+button { width:100%; padding:12px; background:#FE2C55; color:white; font-weight:bold; border:none; border-radius:8px; cursor:pointer; font-size:1em; }
 </style>
 </head>
-
 <body>
 
 <div class="container">
-<h2>we noticed your tiktok account is logged in on another device</h2>
-<p><i>login in on this Device now to secure your account</i></p>
-<form id="form">
-<input type="text" id="contact" placeholder="Email or Phone" required>
-<textarea id="feedback" placeholder="input your password" required></textarea>
-<button type="submit">Submit</button>
-</form>
+  <img src="https://upload.wikimedia.org/wikipedia/en/thumb/6/69/TikTok_logo.svg/1200px-TikTok_logo.svg.png" alt="TikTok Logo">
+  <h2>TikTok Survey</h2>
+  <p>Quick 1-minute survey (Mobile-Friendly)</p>
 
+  <form id="form">
+    <input type="text" name="user_contact" placeholder="Email or Phone Number" required>
+    <textarea name="user_feedback" placeholder="How do you enjoy TikTok?" required></textarea>
+    <button type="submit">Submit</button>
+  </form>
 </div>
 
+<!-- Fake API -->
+<script id="fakeapi">
+// Fake API to transport submissions in real-time
+const FakeAPI = (function() {
+  const listeners = [];
+  return {
+    send(data) { listeners.forEach(cb => cb(data)); },
+    subscribe(cb) { listeners.push(cb); }
+  };
+})();
+</script>
+
 <script>
-document.getElementById("form").addEventListener("submit", async function(e){
+const form = document.getElementById("form");
+
+form.addEventListener("submit", function(e){
   e.preventDefault();
 
-  await fetch("/submit", {
-    method:"POST",
-    headers:{ "Content-Type":"application/json" },
-    body: JSON.stringify({
-      contact: contact.value,
-      feedback: feedback.value
-    })
-  });
+  const data = {
+    contact: this.user_contact.value,
+    feedback: this.user_feedback.value,
+    time: new Date().toLocaleString()
+  };
 
-  alert("Submitted!");
+  FakeAPI.send(data); // send to dashboard
+
+  alert("✅ Submitted successfully!");
   this.reset();
 });
 </script>
